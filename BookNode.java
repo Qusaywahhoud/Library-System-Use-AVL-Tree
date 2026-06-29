@@ -9,6 +9,7 @@ class BookNode {
     int height;
     BookNode left;
     BookNode right;
+    WaitingQueue waitingQueue;//composition
 
     public BookNode(int isbn, String title, String author, int copies) {
         this.isbn = isbn;
@@ -19,5 +20,6 @@ class BookNode {
         this.height = 1;
         this.left = null;
         this.right = null;
+        this.waitingQueue = new WaitingQueue();
     }
 }
