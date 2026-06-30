@@ -32,27 +32,27 @@ public class LibraryGUI extends JFrame {
         JPanel inputPanel = new JPanel(new GridLayout(3, 4, 10, 10));
         inputPanel.setBorder(BorderFactory.createTitledBorder("Dynamic Form - Inputs automatically unlock per operation"));
 
-        inputPanel.add(new JLabel(" ISBN:"));
+        inputPanel.add(new JLabel("                                ISBN:"));
         txtIsbn = new JTextField();
         inputPanel.add(txtIsbn);
 
-        inputPanel.add(new JLabel(" Title:"));
+        inputPanel.add(new JLabel("                                Title:"));
         txtTitle = new JTextField();
         inputPanel.add(txtTitle);
 
-        inputPanel.add(new JLabel(" Author:"));
+        inputPanel.add(new JLabel("                                Author:"));
         txtAuthor = new JTextField();
         inputPanel.add(txtAuthor);
 
-        inputPanel.add(new JLabel(" Copies / Adj:"));
+        inputPanel.add(new JLabel("                                Copies / Adj:"));
         txtCopies = new JTextField();
         inputPanel.add(txtCopies);
 
-        inputPanel.add(new JLabel(" Student Name:"));
+        inputPanel.add(new JLabel("                                Student Name:"));
         txtStudentName = new JTextField();
         inputPanel.add(txtStudentName);
 
-        chkIsGraduate = new JCheckBox("Is Graduate Student");
+        chkIsGraduate = new JCheckBox("                                Is Graduate Student");
         inputPanel.add(chkIsGraduate);
 
         btnConfirmAction = new JButton("Select an Operation First");
@@ -185,14 +185,14 @@ public class LibraryGUI extends JFrame {
                         String author = txtAuthor.getText().trim();
                         int copies = Integer.parseInt(txtCopies.getText().trim());
 
-                   
+
                         boolean isSuccess = library.insert(isbn, title, author, copies);
                         if (isSuccess) {
                             txtDisplay.append(" Successfully inserted '" + title + "'. Tree balanced.\n");
                             saveDataToFiles();
                         } else {
-                            txtDisplay.append(" Error: A book with ISBN " + isbn + " already exists in the system!\n");
-                            txtDisplay.append(" Tip: Use 'Adjust Stock' mode to add copies to an existing book.\n");
+                            txtDisplay.append(" Error!\n");
+
                         }
                         break;
 
@@ -314,27 +314,58 @@ public class LibraryGUI extends JFrame {
                 disableAllFields();
             } catch (NumberFormatException ex) {
                 txtDisplay.append(" Input Format Error: Please ensure numeric values are valid.\n");
+            } catch (IllegalArgumentException ex) {
+
+                txtDisplay.append(" Validation Error: " + ex.getMessage() + "\n");
+            } catch (Exception ex) {
+
+                txtDisplay.append(" System Error: An unexpected error occurred.\n");
             }
         });
 
         setLocationRelativeTo(null);
     }
 
+
     private boolean validateInputs(boolean checkIsbn, boolean checkDetails, boolean checkStudent) {
         if (checkIsbn && txtIsbn.getText().trim().isEmpty()) {
             txtDisplay.append(" Input Error: ISBN field cannot be empty.\n");
             return false;
         }
-        if (checkDetails && (txtTitle.getText().trim().isEmpty() || txtAuthor.getText().trim().isEmpty())) {
-            txtDisplay.append(" Input Error: Book Title and Author fields are required.\n");
-            return false;
+
+        if (checkDetails) {
+            String title = txtTitle.getText().trim();
+            String author = txtAuthor.getText().trim();
+
+            if (title.isEmpty() || author.isEmpty()) {
+                txtDisplay.append(" Input Error: Book Title and Author fields are required.\n");
+                return false;
+            }
+
+
+            if (!title.matches("^[a-zA-Z ]+$") || !author.matches("^[a-zA-Z ]+$")) {
+                txtDisplay.append(" Input Error: Title and Author must contain ONLY letters and spaces.\n");
+                return false;
+            }
         }
-        if (checkStudent && txtStudentName.getText().trim().isEmpty()) {
-            txtDisplay.append(" Input Error: Student Name field is required.\n");
-            return false;
+
+        if (checkStudent) {
+            String studentName = txtStudentName.getText().trim();
+
+            if (studentName.isEmpty()) {
+                txtDisplay.append(" Input Error: Student Name field is required.\n");
+                return false;
+            }
+
+
+            if (!studentName.matches("^[a-zA-Z ]+$")) {
+                txtDisplay.append(" Input Error: Student Name must contain ONLY letters and spaces.\n");
+                return false;
+            }
         }
         return true;
     }
+
 
     private void disableAllFields() {
         enableFields(false, false, false, false, false, false);
@@ -417,10 +448,5 @@ public class LibraryGUI extends JFrame {
         chkIsGraduate.setSelected(false);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            LibraryGUI frame = new LibraryGUI();
-            frame.setVisible(true);
-        });
-    }
+
 }
